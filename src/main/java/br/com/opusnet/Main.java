@@ -8,18 +8,18 @@ public class Main extends JPanel {
     private static final int HEIGHT = 800;
     static int inversaX = 1;
     static int inversaY = 1;
-
-    // Vetor inicial
-    private int x = 100;
-    private int y = 100;
-
+    private Point[] poligono = {
+            new Point(100, 100),
+            new Point(150, 50),
+            new Point(200, 100)
+    };
 
     // Fatores de transformação
     private double escalaX = 1.0;
     private double escalaY = 1.0;
     private double angulo = 0;
 
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
         JFrame jFrame = new JFrame("Transformações lineares");
         Main panel = new Main();
         JSlider escalaSlider = new JSlider(1, 5, 1);
@@ -29,7 +29,7 @@ public class Main extends JPanel {
         rotacaoSlider.addChangeListener(e -> panel.setAngulo(rotacaoSlider.getValue()));
 
         Checkbox checkBoxInverter = new Checkbox();
-        checkBoxInverter.addItemListener(e-> panel.setInversao(true));
+        checkBoxInverter.addItemListener(e -> panel.setInversao(checkBoxInverter.getState()));
 
         JPanel controlPanel = new JPanel();
         controlPanel.add(new JLabel("Escala:"));
@@ -45,14 +45,13 @@ public class Main extends JPanel {
         jFrame.setSize(WIDTH, HEIGHT);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.setVisible(true);
-
     }
 
-    public Point rotacao(int x, int y, double angulo){
+    public Point rotacao(int x, int y, double angulo) {
         double radianos = Math.toRadians(angulo);
-        int novoX = (int) ((int) x* Math.cos(radianos) - y*Math.sin(radianos));
+        int novoX = (int) (x * Math.cos(radianos) - y * Math.sin(radianos));
         int novoY = (int) (x * Math.sin(radianos) + y * Math.cos(radianos));
-        return new Point(novoX,novoY);
+        return new Point(novoX, novoY);
     }
 
     public Point escalonar(int x, int y, double scaleX, double scaleY) {
@@ -61,22 +60,23 @@ public class Main extends JPanel {
         return new Point(newX, newY);
     }
 
+    public Point inverter(int x, int y) {
+        return new Point(x * inversaX, y * inversaY);
+    }
+
     @Override
-    protected void paintComponent(Graphics g){
+    protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        g.translate(WIDTH / 2, HEIGHT / 2);
 
-        g.translate(WIDTH/2,HEIGHT/2);
-
-        Point escala = escalonar(x,y,escalaX,escalaY);
-
-        Point rodar = rotacao(inversaX*escala.x,escala.y,angulo);
-
-        Point reflexao = inverter(rodar.x,rodar.y);
-
+        // Transformar e desenhar o polígono original
         g.setColor(Color.BLUE);
-        g.drawLine(0, 0, x, y);  // Vetor original
+        desenharPoligono(g, poligono);
+
+        // Aplicar transformações e desenhar o polígono transformado
+        Point[] poligonoTransformado = transformarPoligono();
         g.setColor(Color.RED);
-        g.drawLine(0, 0, rodar.x, rodar.y);  // Vetor transformado
+        desenharPoligono(g, poligonoTransformado);
 
         // Desenhar eixos
         g.setColor(Color.BLACK);
@@ -84,8 +84,22 @@ public class Main extends JPanel {
         g.drawLine(0, -HEIGHT / 2, 0, HEIGHT / 2);  // Eixo Y
     }
 
-    public Point inverter(int x, int y){
-        return new Point(-x,-y);
+    private Point[] transformarPoligono() {
+        Point[] novoPoligono = new Point[poligono.length];
+        for (int i = 0; i < poligono.length; i++) {
+            Point escalonado = escalonar(poligono[i].x, poligono[i].y, escalaX, escalaY);
+            Point rotacionado = rotacao(escalonado.x, escalonado.y, angulo);
+            novoPoligono[i] = inverter(rotacionado.x, rotacionado.y);
+        }
+        return novoPoligono;
+    }
+
+    private void desenharPoligono(Graphics g, Point[] pontos) {
+        for (int i = 0; i < pontos.length; i++) {
+            Point p1 = pontos[i];
+            Point p2 = pontos[(i + 1) % pontos.length]; // Conectar o último ao primeiro
+            g.drawLine(p1.x, p1.y, p2.x, p2.y);
+        }
     }
 
     public void setInversao(boolean t) {
@@ -98,15 +112,15 @@ public class Main extends JPanel {
         }
         repaint();
     }
+
     public void setEscala(double scaleX, double scaleY) {
         this.escalaX = scaleX;
         this.escalaY = scaleY;
         repaint();
     }
+
     public void setAngulo(double angle) {
         this.angulo = angle;
         repaint();
     }
-
-
 }
