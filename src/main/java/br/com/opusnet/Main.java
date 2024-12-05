@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Main extends JPanel {
-    private static final int WIDTH = 800;
+    private static final int WIDTH = 1000;
     private static final int HEIGHT = 800;
     static int inversaX = 1;
     static int inversaY = 1;
@@ -13,9 +13,7 @@ public class Main extends JPanel {
             new Point(150, 50),
             new Point(200, 100)
     };
-
-    // Fatores de transformação
-    private double escalaX = 1.0;
+private double escalaX = 1.0;
     private double escalaY = 1.0;
     private double angulo = 0;
 
@@ -39,6 +37,8 @@ public class Main extends JPanel {
         controlPanel.add(new JLabel("Inverter:"));
         controlPanel.add(checkBoxInverter);
 
+        jFrame.setResizable(false);
+        jFrame.setLocationRelativeTo(null);
         jFrame.setLayout(new BorderLayout());
         jFrame.add(panel, BorderLayout.CENTER);
         jFrame.add(controlPanel, BorderLayout.SOUTH);
@@ -69,19 +69,17 @@ public class Main extends JPanel {
         super.paintComponent(g);
         g.translate(WIDTH / 2, HEIGHT / 2);
 
-        // Transformar e desenhar o polígono original
         g.setColor(Color.BLUE);
         desenharPoligono(g, poligono);
 
-        // Aplicar transformações e desenhar o polígono transformado
         Point[] poligonoTransformado = transformarPoligono();
         g.setColor(Color.RED);
         desenharPoligono(g, poligonoTransformado);
 
         // Desenhar eixos
         g.setColor(Color.BLACK);
-        g.drawLine(-WIDTH / 2, 0, WIDTH / 2, 0);  // Eixo X
-        g.drawLine(0, -HEIGHT / 2, 0, HEIGHT / 2);  // Eixo Y
+        g.drawLine(-WIDTH / 2, 0, WIDTH / 2, 0);
+        g.drawLine(0, -HEIGHT / 2, 0, HEIGHT / 2);
     }
 
     private Point[] transformarPoligono() {
@@ -97,18 +95,18 @@ public class Main extends JPanel {
     private void desenharPoligono(Graphics g, Point[] pontos) {
         for (int i = 0; i < pontos.length; i++) {
             Point p1 = pontos[i];
-            Point p2 = pontos[(i + 1) % pontos.length]; // Conectar o último ao primeiro
+            Point p2 = pontos[(i + 1) % pontos.length];
             g.drawLine(p1.x, p1.y, p2.x, p2.y);
         }
     }
 
     public void setInversao(boolean t) {
         if (t) {
-            inversaX = -1;  // Inverte o eixo X
-            inversaY = -1;  // Inverte o eixo Y
+            inversaX = -1;
+            inversaY = -1;
         } else {
-            inversaX = 1;   // Restaura o eixo X
-            inversaY = 1;   // Restaura o eixo Y
+            inversaX = 1;
+            inversaY = 1;
         }
         repaint();
     }
